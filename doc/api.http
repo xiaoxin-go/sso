@@ -1,0 +1,52 @@
+GET {{host}}/system/users?page=1&size=10&username=zhangshan1
+Content-Type: application/json
+
+
+### 添加用户
+POST {{host}}/system/user
+Content-Type: application/json
+
+{
+  "username": "zhangshan",
+  "email": "zhangshan@qq.com",
+  "name_cn": "张三",
+  "password": "123456"
+}
+
+### 更新用户
+PUT {{host}}/system/user/3
+Content-Type: application/json
+
+{
+  "username": "zhangshan",
+  "email": "zhangshan@qq.com",
+  "name_cn": "张三",
+  "password": "12345678910"
+}
+
+### 删除用户
+DELETE {{host}}}/system/user/3
+
+### 获取角色列表
+GET {{host}}/system/roles
+Content-Type: application/json
+
+### 添加角色信息
+POST {{host}}/system/role
+Content-Type: application/json
+
+{
+  "name": "admin",
+  "description": "超级管理员"
+}
+
+### 更新角色信息
+PUT {{host}}/system/role/1
+Content-Type: application/json
+
+{
+  "description": "超级管理员1"
+}
+
+### 删除角色信息
+DELETE {{host}}/system/role/2

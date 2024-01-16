@@ -1,0 +1,98 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+title 注册功能前后端完整交互
+skinparam BoxPadding 40
+autonumber "<font color=red><b>"
+actor 用户 as User
+activate User
+User -> Web: 点击注册按钮
+Web --> User: 显示注册页面
+group #eaf2ff 校验邮箱
+    User->User: 输入邮箱
+    User->Web: 点击发送验证码
+        activate Web
+        Web->Web: 生成OperateId
+        Web->Api: 调用发送邮箱验证码API
+            activate Api
+            Api->Api: 校验邮箱是否被占用
+            Api->Api: 生成随机验证码
+            Api->Api: 发送验证码
+            Api->Api: 使用OperateId存储验证码（有效期为5分钟，有效期内不再发送）
+            Api-->Web: 返回验证码发送成功
+            deactivate Api
+        Web-->User: 返回验证码发送成功
+        deactivate Web
+    User->User: 查看邮箱, 输入验证码
+    User->Web: 点击验证
+        activate Web
+        Web->Api: 传入OperateId和验证码调用验证接口
+            activate Api
+            Api->Api: 根据OperateId从缓存中取出发送的验证码
+            Api->Api: 对比前端输入的验证码
+            alt 验证码正确
+                Api->Api: 保存OperateId邮箱已校验(5分钟有效期)
+                Api-->Web: 提示校验成功
+                Web-->User: 提示验证成功并进入绑定otp页面
+            else 验证码错误
+                Api-->Web: 提示验证码错误
+                deactivate Api
+                Web-->User: 提示验证码错误
+                deactivate Web
+                User->User: 重新点击验证码校验邮箱
+            end
+end
+group #eaffef 绑定otp
+    User->Web: 提示验证成功并进入绑定otp页面
+        activate Web
+        Web->Api: 传入OperateId获取otp二维码
+            activate Api
+            Api -> Api: 生成otp随机密钥
+            Api -> Api: 使用OperateId保存随机密钥到内存中(有效期为5分钟)
+            Api -> Api: 生成otp二维码
+            Api --> Web: 返回otp二维码
+            deactivate Api
+        Web --> User: 返回otp二维码
+        deactivate Web
+    User->User: 使用otp扫描工具扫描页面上显示的otp二维码
+    User->Web: 输入otp码, 点击验证otp按钮
+        activate Web
+        Web->Api: 调用验证otp接口
+        activate Api
+        Api->Api: 根据OperateId从缓存中取出otp密钥
+        Api->Api: 使用otp算法根据密钥计算出otp码
+        Api->Api: 对比用户输入的otp码
+        alt 验证正确
+            Api->Api: 保存OperateId验证otp结果
+            Api-->Web: 提示otp验证成功
+            Web-->User: 提示otp验证成功, 并返回用户名和密码页面
+        else 验证错误
+            Api-->Web: 提示otp码输入错误
+            deactivate Api
+            Web-->User: 提示otp码输入错误
+            deactivate Web
+            User->User: 重新验证otp
+        end
+end
+group #fffeef 校验用户名和密码
+    User->User: 输入用户名、用户中文名、密码
+    User->Web: 点击提交按钮
+        activate Web
+        Web -> Api: 获取公钥
+            activate Api
+            Api -> Api: 生成公钥
+            Api -->Web: 返回公钥
+            deactivate Api
+        Web -> Web: 使用公钥加密密码
+        Web -> Api: 调用注册api
+        activate Api
+        Api -> Api: 校验用户名是否被占用
+        Api -> Api: 根据OperateId从缓存中取出邮箱、otp密钥
+        Api -> Api: 使用私钥解密密码
+        Api -> Api: 校验用户名和密码格式是否正确(密码应包含大小写、数字、字母的组合，并且不小于8位)
+        Api -> Api: 保存用户信息到数据库中(密码hash到数据库中)
+        Api --> Web: 返回前端注册成功
+        deactivate Api
+        Web --> User: 提示注册成功，并跳转到登录页面
+        deactivate Web
+end
+@enduml

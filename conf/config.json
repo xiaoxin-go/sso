@@ -1,0 +1,37 @@
+{
+  "env": "test",
+  "port": 8030,
+  "log": {
+    "level": "DEBUG",
+    "filename": "logs/app.log",
+    "max_size": 50,
+    "max_age": 5,
+    "max_backups": 5
+  },
+  "mysql":{
+    "host": "127.0.0.1",
+    "port": "3306",
+    "user": "root",
+    "password": "xiaoxin",
+    "db_name": "sso"
+  },
+  "email": {
+    "host": "",
+    "port": 25,
+    "username": "346077630@qq.com",
+    "password": "E1zMoulVfTE1",
+    "sender": "346077630@qq.com"
+  },
+  "redis": {
+    "host": "127.0.0.1",
+    "port": "6379",
+    "db": 0
+  },
+  "minio": {
+    "endpoint": "127.0.0.1:9000",
+    "access_key": "1ou59qNRKbuZm6uh",
+    "secret_key": "aSdPPa1KcObkr1f9aDPVt6YuoCEVt2tJ",
+    "bucket": "horus-eye",
+    "secure": false
+  }
+}

@@ -1,0 +1,42 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+title 登录功能前后端完整交互
+skinparam BoxPadding 40
+autonumber "<font color=red><b>"
+actor 用户 as User
+activate User
+User -> Web: 请求登录页面
+    activate Web
+    Web --> User: 返回登录页面
+    deactivate Web
+User->User: 输入用户名
+User->User: 输入密码
+User->User: 输入otp码
+User->Web: 点击登录
+    activate Web
+    Web->Web: 生成operate_id
+    Web->Api: 获取公钥(参数operate_id)
+    activate Api
+    Api->Api: 生成密钥对
+    Api->Api: 根据operate_id保存私钥
+    Api-->Web: 返回公钥
+    deactivate Api
+    Web->Web: 使用公钥加密密码
+    Web->Api: 调用登录接口(参数operate_id, username, 加密后的密码, otp码)
+    group #e5f4ff 登录函数
+        activate Api
+        Api->Api: 获取请求参数
+        Api->Api: 根据operate_id获取私钥
+        Api->Api: 解密密码
+        Api->Api: 根据用户名获取用户信息(可以是用户名或邮箱)
+        Api->Api: hash密码校验密码是否正确
+        Api->Api: 使用otp_secret生成code对比code是否正确
+        Api->Api: 生成sso_session_id
+        Api->Api: 保存sso_session_id缓存24小时
+        Api->Api: sso_session_id放到header里
+    end
+    Api->Web: 返回登录成功
+    deactivate Api
+    Web->User: 提示登录成功, 返回首页
+    deactivate Web
+@enduml
