@@ -1,4 +1,4 @@
-package log
+package platform_kind
 
 import (
 	"sso/libs"
@@ -14,9 +14,9 @@ var handler *Handler
 func init() {
 	handler = &Handler{}
 	handler.NewInstance = func() libs.Instance {
-		return new(model.TLog)
+		return new(model.TPlatformKind)
 	}
 	handler.NewResults = func() any {
-		return &[]*model.TLog{}
+		return &[]*model.TPlatformKind{}
 	}
 }

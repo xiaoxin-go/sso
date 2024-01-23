@@ -132,7 +132,7 @@ type loginRequest struct {
 	Username  string `json:"username" binding:"required"`
 	Password  string `json:"password" binding:"required"`
 	OperateId string `json:"operate_id" binding:"required"`
-	Code      uint32 `json:"code" binding:"required"`
+	Code      string `json:"code" binding:"required"`
 }
 
 // Login 登录
@@ -143,13 +143,13 @@ func Login(ctx *gin.Context) {
 		return
 	}
 	h := handler.NewLoginHandler(params.OperateId)
-	sessionId, err := h.Login(params.Username, params.Password, params.Code)
+	user, sessionId, err := h.Login(params.Username, params.Password, params.Code)
 	if err != nil {
 		libs.HttpServerError(ctx, err.Error())
 		return
 	}
-	ctx.SetCookie("sso_session_id", sessionId, 3600*24, "/", "devops.com", false, true)
-	libs.HttpSuccess(ctx, nil, "登录成功")
+	ctx.SetCookie("sso_session_id", sessionId, 3600*24, "/", "", false, true)
+	libs.HttpSuccess(ctx, user, "登录成功")
 }
 
 type retrievePasswordRequest struct {
@@ -261,4 +261,59 @@ func GetMenus(ctx *gin.Context) {
 	libs.HttpSuccess(ctx, result, "ok")
 }
 
-//
+// SessionCheck 校验session是否有效
+func SessionCheck(ctx *gin.Context) {
+	sessionId := ctx.Query("session_id")
+	appIdStr := ctx.Query("app_id")
+	if sessionId == "" {
+		libs.HttpParamsError(ctx, "session_id is required")
+		return
+	}
+	if appIdStr == "" {
+		libs.HttpParamsError(ctx, "app_id is required")
+		return
+	}
+	appId, e := strconv.Atoi(appIdStr)
+	if e != nil {
+		libs.HttpParamsError(ctx, "app_id is invalid")
+		return
+	}
+	// 从redis获取用户信息
+	userId, e := database.R.HGet(sessionId, "user_id").Int()
+	if e != nil {
+		libs.HttpParamsError(ctx, "session_id is invalid")
+		return
+	}
+	// 获取用户信息
+	user := model.TUser{}
+	if e := user.FirstById(userId); e != nil {
+		libs.HttpServerError(ctx, e.Error())
+		return
+	}
+	// 获取平台信息
+	platform := model.TPlatform{}
+	if e := platform.FirstById(appId); e != nil {
+		libs.HttpServerError(ctx, e.Error())
+		return
+	}
+	// 判断用户是否拥有平台权限
+	// 获取用户下的租户
+	userTenementIds, e := new(model.TTenementUser).PluckTenementIdsByUserId(userId)
+	if e != nil {
+		libs.HttpServerError(ctx, e.Error())
+		return
+	}
+	// 获取租户下的平台
+	userPlatformIds, e := new(model.TTenementPlatform).PluckPlatformIdsByTenementIds(userTenementIds)
+	if e != nil {
+		libs.HttpServerError(ctx, e.Error())
+		return
+	}
+	for _, v := range userPlatformIds {
+		if v == appId {
+			libs.HttpSuccess(ctx, user, "ok")
+			return
+		}
+	}
+	libs.HttpAuthorError(ctx, "用户没有访问平台的权限")
+}

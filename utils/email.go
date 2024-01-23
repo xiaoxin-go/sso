@@ -19,7 +19,7 @@ func SendEmail(subject string, body string, filename string, to ...string) error
 	if len(filename) > 0 {
 		email.Attach(filename)
 	}
-
+	fmt.Println(data.Host, data.Port, data.Username)
 	d := gomail.NewDialer(data.Host, data.Port, data.Username, data.Password)
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	err := d.DialAndSend(email)

@@ -5,5 +5,5 @@ import (
 )
 
 func Routers(e *gin.RouterGroup) {
-	e.POST("/system/log/list", handler.List)
+	e.GET("/system/logs", handler.List)
 }

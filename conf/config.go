@@ -54,7 +54,7 @@ type Nacos struct {
 type Email struct {
 	Host     string   `json:"host"`
 	Port     int      `json:"port"`
-	Username string   `json:"user"`
+	Username string   `json:"username"`
 	Password string   `json:"password"`
 	Sender   string   `json:"sender"`
 	To       []string `json:"to"`

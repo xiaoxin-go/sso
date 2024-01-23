@@ -14,7 +14,7 @@ func Routers(e *gin.RouterGroup) {
 	e.POST("/auth/retrieve_password", RetrievePassword)             // 返回密码
 	e.POST("/auth/reset_password", ResetPassword)                   // 重置密码
 	e.GET("/auth/user_info", GetUserInfo)
-	e.GET("/auth/check") // 校验用户是否登录
+	e.GET("/auth/session_check", SessionCheck) // 校验用户是否登录
 	e.GET("/auth/menus", GetMenus)
 
 }

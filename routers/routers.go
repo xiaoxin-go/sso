@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"sso/api/auth"
 	"sso/api/platform"
+	"sso/api/platform_kind"
 	"sso/api/platform_user"
 	"sso/api/system/api"
 	"sso/api/system/log"
@@ -31,6 +32,7 @@ func IncludeRouter() {
 	Include(tenement.Routers)
 	Include(platform.Routers)
 	Include(platform_user.Routers)
+	Include(platform_kind.Routers)
 }
 
 // Init 初始化

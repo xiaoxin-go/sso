@@ -361,6 +361,7 @@ func (t *TUser) AfterFind(tx *gorm.DB) (err error) {
 		return
 	}
 	t.Roles = roleNames
+	t.RoleIds = roleIds
 	return
 }
 
@@ -373,6 +374,14 @@ func (t *TUser) AfterCreate(tx *gorm.DB) (err error) {
 	}
 	err = t.bulkCreateUserRole()
 	return
+}
+
+func (t *TUser) Create() (err error) {
+	if e := database.DB.Create(t).Error; e != nil {
+		zap.L().Error("创建用户失败", zap.Any("user", t), zap.Error(e))
+		return fmt.Errorf("创建用户失败, user: %+v, err: %w", t, e)
+	}
+	return nil
 }
 
 // 添加casbin

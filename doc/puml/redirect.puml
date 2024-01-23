@@ -1,4 +1,23 @@
-@startmindmap
+@startuml
 'https://plantuml.com/mindmap-diagram
 title 平台跳转流程图
-@endmindmap
+skinparam BoxPadding 40
+autonumber "<font color=red><b>"
+actor 用户 as User
+activate User
+
+group #e5f4ff 内部平台跳转方式
+    User -> Web: 点击跳转内部平台
+        activate Web
+        Web -> RedirectApi: 调用平台跳转接口, 传参 plat_id
+            activate RedirectApi
+            RedirectApi->RedirectApi: 根据平台ID获取平台信息
+            RedirectApi->RedirectApi: 增加平台访问次数
+            RedirectApi->Web: 返回平台url
+            deactivate RedirectApi
+        Web->User: 使用新窗口打开url并返回给用户
+        deactivate Web
+    deactivate User
+end
+
+@enduml

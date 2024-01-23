@@ -1,13 +1,17 @@
 package handler
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/pquerna/otp/totp"
 	"go.uber.org/zap"
+	"image/png"
 	"math/rand"
 	"regexp"
 	"sso/database"
 	"sso/model"
 	"sso/utils"
+	"strconv"
 	"time"
 )
 
@@ -77,20 +81,27 @@ func (r *registerHandler) VerifyEmailCode(email, code string) error {
 // GetOtpQrCode 获取otp二维码
 func (r *registerHandler) GetOtpQrCode() ([]byte, error) {
 	// 获取邮箱是否验证通过
-	if !r.verifyEmailPass() && false {
-		return nil, fmt.Errorf("请先验证邮箱信息")
+	email, e := r.hGetEmail()
+	if e != nil {
+		return nil, fmt.Errorf("邮箱验证过期")
 	}
-	// 生成二维码
-	secret := utils.GeneSecret()
-	qr, err := utils.GeneQR(secret)
+	key, err := totp.Generate(totp.GenerateOpts{
+		Issuer:      email,
+		AccountName: email,
+	})
+	var buf bytes.Buffer
+	img, err := key.Image(200, 200)
 	if err != nil {
 		return nil, fmt.Errorf("生成二维码失败: %w", err)
 	}
+	if err := png.Encode(&buf, img); err != nil {
+		return nil, fmt.Errorf("生成二维码失败: %w", err)
+	}
 	// 保存密钥
-	if e := r.hSetSecret(secret); e != nil {
+	if e := r.hSetSecret(key.Secret()); e != nil {
 		return nil, fmt.Errorf("保存密钥失败: %w", e)
 	}
-	return qr, nil
+	return buf.Bytes(), nil
 }
 
 // VerifyOtpCode 校验otp code
@@ -101,8 +112,8 @@ func (r *registerHandler) VerifyOtpCode(code uint32) error {
 		return fmt.Errorf("二维码失效，请获取重试")
 	}
 	// 校验otp
-	totp := utils.NewTotp(secret)
-	if !totp.Verify(code) {
+	str := strconv.Itoa(int(code))
+	if !totp.Validate(str, secret) {
 		return fmt.Errorf("otp不正确")
 	}
 	// 保存校验结果
@@ -145,9 +156,10 @@ func (r *registerHandler) Register(user *model.TUser) error {
 	user.OtpSecret = secret
 	// hash密码
 	user.Password = utils.HashString(pwd)
+	user.Enabled = 1
 	// 保存用户
-	if e := database.DB.Create(user).Error; e != nil {
-		return fmt.Errorf("保存用户异常: %w", e)
+	if e := user.Create(); e != nil {
+		return e
 	}
 	l.Debug("用户注册成功")
 	return nil
@@ -186,7 +198,7 @@ func (r *registerHandler) decodePwd(pwd string) (string, error) {
 func (r *registerHandler) verifyCode(email, code string) bool {
 	// 从redis取出验证码并对比
 	k := fmt.Sprintf("%s-%s", r.OperateId, email)
-	return code != database.R.HGet(k, codeField).Val()
+	return code == database.R.HGet(k, codeField).Val()
 }
 
 func (r *registerHandler) template(captcha string) string {

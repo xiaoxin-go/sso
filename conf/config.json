@@ -12,15 +12,15 @@
     "host": "127.0.0.1",
     "port": "3306",
     "user": "root",
-    "password": "xiaoxin",
+    "password": "",
     "db_name": "sso"
   },
   "email": {
-    "host": "",
-    "port": 25,
-    "username": "346077630@qq.com",
-    "password": "E1zMoulVfTE1",
-    "sender": "346077630@qq.com"
+    "host": "smtp.qq.com",
+    "port": 587,
+    "username": "",
+    "password": "",
+    "sender": ""
   },
   "redis": {
     "host": "127.0.0.1",
@@ -31,7 +31,7 @@
     "endpoint": "127.0.0.1:9000",
     "access_key": "1ou59qNRKbuZm6uh",
     "secret_key": "aSdPPa1KcObkr1f9aDPVt6YuoCEVt2tJ",
-    "bucket": "horus-eye",
+    "bucket": "sso",
     "secure": false
   }
 }

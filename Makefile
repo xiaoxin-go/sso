@@ -1,7 +1,7 @@
 APP=sso
 
 build:
-        @go build -o ${APP}
+        @go build -o ${APP} main.go
 windows:
         @GOOS=windows go build -o ${APP}-windows
 linux:

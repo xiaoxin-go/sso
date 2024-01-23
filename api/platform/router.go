@@ -11,4 +11,5 @@ func Routers(e *gin.RouterGroup) {
 	e.PUT("/platform", handler.Update)
 	e.DELETE("/platform", handler.Delete)
 	e.GET("/platform/self", handler.GetSelf)
+	e.POST("/platform/goto", handler.Goto)
 }

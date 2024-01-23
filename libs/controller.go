@@ -49,6 +49,7 @@ func AdvancedQuery(ctx *gin.Context) func(db *gorm.DB) *gorm.DB {
 			if strings.Contains(k1, "__") {
 				k1 = strings.Split(k1, "__")[0]
 			}
+			// ?name=lisi&age__gt=18&id__in=1,2,3
 			switch {
 			case strings.Contains(k, "__eq"):
 				db = db.Where(fmt.Sprintf("%s = ?", k1), v[0])
@@ -330,22 +331,19 @@ func (c *Controller) GetPagination(ctx *gin.Context) (page, pageSize int) {
 	return
 }
 func GetUser(ctx *gin.Context) (*model.TUser, error) {
-	user1 := &model.TUser{Username: "admin"}
-	user1.Id = 1008
-	return user1, nil
 	sessionId, err := ctx.Cookie("sso_session_id")
 	if err != nil {
 		return nil, errors.New("认证过期")
 	}
-	id, e := database.R.HGet(sessionId, "id").Int()
+	userId, e := database.R.HGet(sessionId, "user_id").Int()
 	if e != nil {
 		return nil, errors.New("无效的session")
 	}
-	if id == 0 {
+	if userId == 0 {
 		return nil, errors.New("用户session过期")
 	}
 	user := &model.TUser{}
-	if e := user.FirstById(id); e != nil {
+	if e := user.FirstById(userId); e != nil {
 		return nil, e
 	}
 	return user, nil

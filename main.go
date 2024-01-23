@@ -37,9 +37,13 @@ func main() {
 
 	log.Println("注册中间件--->")
 	r.Use(libs.GinLogger())
-	//r.Use(libs2.GinRecovery(true))
+	r.Use(libs.GinRecovery(true))
 	r.Use(libs.Cors())
 	r.Use(libs.CasbinAuthor())
+
+	r.GET("/", func(request *gin.Context) {
+		request.HTML(http.StatusOK, "index.html", gin.H{"title": "sso", "ce": "123456"})
+	})
 
 	log.Println("注册路由--->")
 	routers.Init(r.Group("/api/v1"))
