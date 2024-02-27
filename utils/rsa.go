@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
-	"fmt"
 )
 
 func GenerateKey() (publicStr, privateStr string, err error) {
@@ -63,8 +62,6 @@ func RsaDecrypt(password, privatePem string) (result string, err error) {
 	if err != nil {
 		return
 	}
-	fmt.Println("bytes: ", passwordBytes)
-	fmt.Println("pem: ", privatePem)
 	block, _ := pem.Decode([]byte(privatePem))
 	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {

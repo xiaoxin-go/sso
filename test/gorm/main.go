@@ -55,6 +55,23 @@ func toUpper(name string) string {
 	return strings.Join(results, "")
 }
 
+type U1 struct {
+	Age int
+}
+
+type U2 struct {
+	Age uint32
+}
+
+func testTo() {
+	u1 := U1{Age: -10}
+	bs, _ := json.Marshal(u1)
+	u2 := U2{}
+	e := json.Unmarshal(bs, &u2)
+	fmt.Println(e)
+	fmt.Println(u2, u1)
+}
+
 func testTime() {
 	e := database.R.HMSet("test1", map[string]any{"username": "test1", "enabled": 1, "created_at": time.Now().Format(time.DateTime)}).Err()
 	fmt.Println("e", e)
@@ -78,9 +95,17 @@ func testTime() {
 	fmt.Println(user11)
 }
 func main() {
+	testTo()
+	return
 	conf.InitConfig()
 	database.InitDB()
 	database.InitRedis()
+
+	var user2 model.TUser
+	database.DB.Where("username = ?", "dfafdsfs").First(&user2)
+	fmt.Println(database.DB.Updates(&user2).Error)
+
+	return
 	p := map[string]any{
 		"name":        "netops",
 		"name_cn":     "网络自动化",
