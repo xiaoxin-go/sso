@@ -21,4 +21,5 @@
 
 ### 页面
 ![image](https://github.com/xiaoxin-go/sso/assets/31480360/cbda9e86-0454-4618-9fc8-eaf174a46cb7)
-![image](https://github.com/xiaoxin-go/sso/assets/31480360/7a0e21e8-a47c-4c74-806d-7af622122da3)
+![image](https://github.com/xiaoxin-go/sso/assets/31480360/48e173ab-0395-4ada-95d9-c27293001c9b)
+
