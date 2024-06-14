@@ -18,3 +18,7 @@
 2. 安装redis
 3. 初始化sql文件 doc/init.sql
 4. 执行启动命令 go run main.go
+
+### 页面
+![image](https://github.com/xiaoxin-go/sso/assets/31480360/cbda9e86-0454-4618-9fc8-eaf174a46cb7)
+![image](https://github.com/xiaoxin-go/sso/assets/31480360/7a0e21e8-a47c-4c74-806d-7af622122da3)
